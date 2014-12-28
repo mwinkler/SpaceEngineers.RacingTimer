@@ -154,7 +154,7 @@ namespace Mod.Data.Scripts.RacingTimer
         {
             try
             {
-                using (var writer = MyAPIGateway.Utilities.WriteBinaryFileInGlobalStorage(file))
+                using (var writer = MyAPIGateway.Utilities.WriteFileInGlobalStorage(file))
                     writer.Write(MyAPIGateway.Utilities.SerializeToXML<T>(data));
             }
             catch (Exception ex)
