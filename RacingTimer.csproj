@@ -29,6 +29,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Sandbox.Common">
       <HintPath>D:\Games\Steam\SteamApps\common\SpaceEngineers\Bin64\Sandbox.Common.dll</HintPath>
@@ -45,6 +48,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="copy.bat" />
     <None Include="modinfo.sbmi" />
     <None Include="README.md" />
   </ItemGroup>
@@ -63,8 +67,13 @@
     <Compile Include="Data\Scripts\RacingTimer\RaceServer.cs" />
     <Compile Include="Data\Scripts\RacingTimer\TimeDelta.cs" />
     <Compile Include="Data\Scripts\RacingTimer\Track.cs" />
+    <Compile Include="PgBlock.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
