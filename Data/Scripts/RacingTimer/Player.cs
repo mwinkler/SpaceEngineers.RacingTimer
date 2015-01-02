@@ -13,9 +13,9 @@ namespace Mod.Data.Scripts.RacingTimer
         {
             Name = player.DisplayName;
             PlayerID = player.PlayerID;
+            CurrentTrack = RaceServer.GetTrack();
         }
 
-        public List<Checkpoint> Checkpoints = new List<Checkpoint>();
         public List<Lap> Laps = new List<Lap>();
 
         public string Name { get; set; }
@@ -23,46 +23,22 @@ namespace Mod.Data.Scripts.RacingTimer
         public Checkpoint CurrentCheckpoint { get; set; }
         public Lap CurrentLap { get; set; }
         public BestTime BestLapTime { get; set; }
-
-        public Checkpoint GetCheckpoint(string checkpointName)
-        {
-            // get checkpoint by name
-            var checkpoint = Checkpoints.FirstOrDefault(sm => sm.FullName.Equals(checkpointName, StringComparison.OrdinalIgnoreCase));
-
-            // create checkpoint
-            if (checkpoint == null)
-            {
-                checkpoint = new Checkpoint(checkpointName);
-                Checkpoints.Add(checkpoint);
-            }
-
-            return checkpoint;
-        }
-
-        public void ResetCheckpoints()
-        {
-            // reset current checkpoint
-            CurrentCheckpoint = null;
-
-            // reset passed checkpoints
-            Checkpoints.ForEach(s => s.Passed = null);
-        }
+        public Track CurrentTrack { get; set; }
 
         public void StartNewLap()
         {
             // create new lap
-            CurrentLap = new Lap(Laps.Count + 1);
+            CurrentLap = new Lap(Laps.Count + 1, this, CurrentTrack);
 
             Laps.Add(CurrentLap);
-
-            ResetCheckpoints();
         }
 
-        public void RestartCurrentLap()
+        public DateTime GetPreviousCheckpointTime()
         {
-            CurrentLap.Reset();
-
-            ResetCheckpoints();
+            // get previous passed checkpoint time
+            return (CurrentCheckpoint == null
+                ? CurrentLap.Time.Start
+                : CurrentCheckpoint.Passed.Value);
         }
     }
 }

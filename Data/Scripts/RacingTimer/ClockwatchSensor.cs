@@ -54,10 +54,25 @@ namespace Mod.Data.Scripts.RacingTimer
             var track = RaceServer.GetTrack();
 
             // get checkpoint
-            var checkpoint = player.GetCheckpoint(_sensor.CustomName);
+            var checkpoint = track.GetCheckpoint(_sensor.CustomName);
 
             // player pass checkpoint
-            RaceServer.CalculateCheckpoint(track, checkpoint, player);
+            if (player.CurrentLap != null)
+            {
+                var time = player.CurrentLap.PassCheckpoint(checkpoint);
+
+                if (time != null)
+                {
+                    // message
+                    Helper.NotificationToPlayer(
+                        player,
+                        m => m("Checkpoint '{0}' {1}",
+                            checkpoint.Name,
+                            time.ToString(true, true)),
+                        10000,
+                        time.GetLaptimeFontColor());
+                }
+            }
 
             // player cross start/finish line
             if (_sensor.CustomName.Equals(RaceServer.RaceStartSensorName, StringComparison.OrdinalIgnoreCase))
@@ -72,11 +87,23 @@ namespace Mod.Data.Scripts.RacingTimer
                     return;
                 }
 
+                var lap = player.CurrentLap;
+
                 // valid lap
-                if (RaceServer.IsValidLap(player, track, true))
+                if (lap.Validate())
                 {
-                    RaceServer.CalculateLap(track, player);
+                    lap.CalculateTime();
+
                     RaceServer.HandleRaceLap(player, track);
+
+                    // show message
+                    Helper.NotificationToPlayer(
+                        player,
+                        m => m("== Lap #{0} {1} ==",
+                            lap.Number,
+                            lap.Time.ToString(true, true, true)),
+                        10000,
+                        lap.Time.GetLaptimeFontColor());
 
                     // start new lap
                     player.StartNewLap();
@@ -85,11 +112,21 @@ namespace Mod.Data.Scripts.RacingTimer
                 }
 
                 // invalid lap
-                
-                // reset current lap
-                player.RestartCurrentLap();
+                else
+                {
+                    // show invalid map message
+                    Helper.NotificationToPlayer(
+                        player,
+                        m => m("Invalid lap, you miss checkpoints [{0}]",
+                            player.CurrentLap.GetMissingCheckpoints().ToFlatString(chk => chk.Name)),
+                        5000,
+                        MyFontEnum.Red);
 
-                return;
+                    // reset current lap
+                    player.CurrentLap.Reset();
+
+                    return;
+                }
                 
             }
 

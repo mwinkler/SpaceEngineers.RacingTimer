@@ -88,13 +88,17 @@ namespace Mod.Data.Scripts.RacingTimer
 
         public static void ShowLaptimes(Player player)
         {
+            var buffer = new StringBuilder();
+
+            foreach (var lap in player.Laps.Where(l => l.Valid))
+            {
+                buffer.AppendLine(string.Format("#{0}: {1}", lap.Number, lap.Time.ToString(true, true)));
+            }
+
             MyAPIGateway.Utilities.ShowMissionScreen(
-                "screenTitle",//string.Format("Laptimes of {0}", player.Name),
-                "currentObjectivePrefix",
-                "currentObjective",
-                "screenDescription",
-                result => { },
-                "okButton");
+                screenTitle: string.Format("Laptimes of {0}", player.Name),
+                screenDescription: buffer.ToString(),
+                okButtonCaption: "OK");
         }
 
         #endregion
@@ -125,7 +129,7 @@ namespace Mod.Data.Scripts.RacingTimer
             // add checkpoints
             foreach (var checkpoint in checkpointGroups)
             {
-                track.Checkpoints.Add(new Checkpoint(checkpoint.Key));
+                track.Checkpoints.Add(new Checkpoint(checkpoint.Key, track));
             }
 
             Helper.ChatMessage(m => m("Found checkpoints [{0}] in track", 
@@ -205,109 +209,12 @@ namespace Mod.Data.Scripts.RacingTimer
 
         #region Race
 
-        public static bool IsValidLap(Player player, Track track, bool showMessage)
-        {
-            // count passed checkpoints
-            var missingCheckpoints = track.Checkpoints
-                .Where(tCheck => !player.Checkpoints.Any(pCheck => pCheck.FullName == tCheck.FullName && pCheck.Passed != null))
-                .ToArray();
-
-            // are all checkpoints passed
-            if (missingCheckpoints.Any())
-            {
-                if (showMessage)
-                {
-                    Helper.NotificationToPlayer(
-                        player,
-                        m => m("Invalid lap, you miss checkpoints [{0}]",
-                            missingCheckpoints.ToFlatString(checkpoint => checkpoint.Name)),
-                        5000,
-                        MyFontEnum.Red);
-                }
-
-                return false;
-            }
-
-            return true;
-        }
-
         public static bool IsMinimumTimeBetweenCheckpoints(Player player)
         {
             if (player.CurrentLap == null)
                 return true;
 
-            return (DateTime.Now - PreviousCheckpointTime(player)) > MininumTimeBetweenCheckpoings;
-        }
-
-        public static void CalculateCheckpoint(Track track, Checkpoint checkpoint, Player player)
-        {
-            // has player lap started
-            if (!player.Laps.Any())
-                return;
-
-            // has player checkpoint already passed
-            if (checkpoint.Passed != null)
-                return;
-
-            // mark as passed
-            checkpoint.Passed = DateTime.Now;
-
-            // before calculate start/finish checkpoint, check if lap is valid
-            if (checkpoint.IsStartFinish && !IsValidLap(player, track, false))
-                return;
-
-            // get track checkpoint
-            var trackCheckpoint = track.GetCheckpoint(checkpoint.FullName);
-
-            // take time
-            var time = new TimeDelta(PreviousCheckpointTime(player), checkpoint.Passed.Value, checkpoint.BestTime, trackCheckpoint.BestTime);
-
-            // is new personal best time
-            if (time.IsPersonalBest)
-                checkpoint.BestTime = new BestTime(player.Name, time.Delta);
-
-            // is new global best time
-            if (time.IsGlobalBest)
-                trackCheckpoint.BestTime = new BestTime(player.Name, time.Delta);
-
-            // set current checkpoint
-            player.CurrentCheckpoint = checkpoint;
-
-            // message
-            Helper.NotificationToPlayer(
-                player,
-                m => m("Checkpoint '{0}' {1}",
-                    checkpoint.Name,
-                    time.ToString(true, true)),
-                10000,
-                time.GetLaptimeFontColor());
-
-            return;
-        }
-
-        public static void CalculateLap(Track track, Player player)
-        {
-            var lap = player.CurrentLap;
-
-            // calculate laptime
-            lap.Time.Calculate(DateTime.Now, player.BestLapTime, track.BestTime);
-
-            // is personal record
-            if (lap.Time.IsPersonalBest)
-                player.BestLapTime = new BestTime(player.Name, lap.Time.Delta);
-
-            // is global record
-            if (lap.Time.IsGlobalBest)
-                track.BestTime = new BestTime(player.Name, lap.Time.Delta);
-
-            // show message
-            Helper.NotificationToPlayer(
-                player,
-                m => m("== Lap #{0} {1} ==",
-                    lap.Number,
-                    lap.Time.ToString(true, true, true)),
-                10000,
-                lap.Time.GetLaptimeFontColor());
+            return (DateTime.Now - player.GetPreviousCheckpointTime()) > MininumTimeBetweenCheckpoings;
         }
 
         public static void HandleRaceLap(Player player, Track track)
@@ -334,13 +241,7 @@ namespace Mod.Data.Scripts.RacingTimer
             }
         }
 
-        public static DateTime PreviousCheckpointTime(Player player)
-        {
-            // get previous passed checkpoint time
-            return (player.CurrentCheckpoint == null
-                ? player.CurrentLap.Time.Start
-                : player.CurrentCheckpoint.Passed.Value);
-        }
+        
 
         #endregion
     }

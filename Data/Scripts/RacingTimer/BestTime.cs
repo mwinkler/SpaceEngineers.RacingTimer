@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Mod.Data.Scripts.RacingTimer
 {
-    [Serializable]
     public class BestTime
     {
         public BestTime(string who, TimeSpan time)

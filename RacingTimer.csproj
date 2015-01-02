@@ -67,7 +67,6 @@
     <Compile Include="Data\Scripts\RacingTimer\RaceServer.cs" />
     <Compile Include="Data\Scripts\RacingTimer\TimeDelta.cs" />
     <Compile Include="Data\Scripts\RacingTimer\Track.cs" />
-    <Compile Include="PgBlock.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
