@@ -26,6 +26,11 @@ namespace Mod.Data.Scripts.RacingTimer
             _writer = MyAPIGateway.Utilities.WriteFileInGlobalStorage(logFile);
         }
 
+        public void WriteLine(string component, string text, params object[] args)
+        {
+            WriteLine(component, string.Format(text, args));
+        }
+
         public void WriteLine(string component, string text)
         {
             if (_cache.Length > 0)

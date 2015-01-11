@@ -14,7 +14,7 @@ namespace Mod.Data.Scripts.RacingTimer
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_SensorBlock))]
     public class ClockwatchSensor : MyGameLogicComponent
     {
-        private IMySensorBlock _sensor;
+        private Sandbox.ModAPI.IMySensorBlock _sensor;
         private MyObjectBuilder_EntityBase _objectBuilder;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -22,7 +22,7 @@ namespace Mod.Data.Scripts.RacingTimer
             base.Init(objectBuilder);
 
             _objectBuilder = objectBuilder;
-            _sensor = Entity as IMySensorBlock;
+            _sensor = Entity as Sandbox.ModAPI.IMySensorBlock;
             _sensor.StateChanged += SensorTriggered;
         }
 
@@ -38,6 +38,9 @@ namespace Mod.Data.Scripts.RacingTimer
 
             // get nearest player
             var playerEntity = Helper.GetNearestPlayer(Entity.GetPosition());
+
+            //var last = _sensor.LastDetectedEntity;
+            //Helper.Log.WriteLine("Sensor", "Name: {0}, DisplayName: {1}", last.Name, last.DisplayName);
 
             // break if no player is found
             if (playerEntity == null)

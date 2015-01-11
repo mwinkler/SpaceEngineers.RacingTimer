@@ -116,7 +116,7 @@ namespace Mod.Data.Scripts.RacingTimer
             track.BestTime = null;
 
             // find all checkpoint sensor blocks
-            var checkpointSensors = Helper.FindBlocks<IMySensorBlock>(b => b.CustomName != null 
+            var checkpointSensors = Helper.FindBlocks<Sandbox.ModAPI.IMySensorBlock>(b => b.CustomName != null 
                 && (b.CustomName.StartsWith(RaceCheckpointSensorName, StringComparison.OrdinalIgnoreCase)
                     || b.CustomName.Equals(RaceStartSensorName, StringComparison.OrdinalIgnoreCase)));
 

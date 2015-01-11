@@ -1,6 +1,6 @@
 ﻿using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +19,7 @@ namespace Mod.Data.Scripts.RacingTimer
         {
             base.Init(objectBuilder);
 
+            _objectBuilder = objectBuilder;
             _button = Entity as IMyButtonPanel;
             _button.ButtonPressed += ButtonPressed;
         }
